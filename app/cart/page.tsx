@@ -9,6 +9,8 @@ import api from "@/lib/api";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { formatCurrency } from "@/utils/helpers";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { CartSummary } from "@/utils/Types/common";
 
 export default function CartPage() {
@@ -105,215 +107,194 @@ export default function CartPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 md:py-10">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+    <div className="min-h-screen bg-gray-50" dir="rtl">
+      <main className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
           <ShoppingBag className="w-6 h-6 text-primary" />
-          سلة المشتريات
-          {state.items.length > 0 && (
-            <span className="badge-primary text-xs">{state.items.length}</span>
-          )}
+          سلتك ({state.items.length} منتج)
         </h1>
-        {state.items.length > 0 && (
-          <Link
-            href="/checkout"
-            className="btn-primary !py-2.5 !px-5 text-sm flex items-center gap-2"
-          >
-            إتمام الشراء
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-        )}
-      </div>
 
-      <AnimatePresence mode="wait">
-        {state.items.length === 0 ? (
-          <motion.div
-            key="empty"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-16"
-          >
-            <Package className="w-16 h-16 mx-auto text-text-faint mb-4" />
-            <h2 className="text-xl font-bold text-text mb-2">السلة فارغة</h2>
-            <p className="text-text-muted mb-6">لم تقم بإضافة أي منتجات بعد</p>
-            <Link href="/" className="btn-primary inline-block">
-              تصفح المنتجات
-            </Link>
-          </motion.div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Cart Items */}
-            <div className="lg:col-span-2 space-y-3">
-              {state.items.map((item) => (
-                <motion.div
-                  key={item.id}
-                  layout
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="card p-4"
-                >
-                  <div className="flex gap-4">
+        <AnimatePresence mode="wait">
+          {state.items.length === 0 ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100"
+            >
+              <Package className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+              <h2 className="text-xl font-bold text-gray-900 mb-2">سلتك فارغة</h2>
+              <p className="text-gray-500 mb-6">لم تقم بإضافة أي منتجات لسلتك بعد</p>
+              <Link href="/">
+                <Button className="bg-primary hover:bg-primary/90 text-white px-8 h-11 rounded-lg">
+                  استكشف المتجر
+                </Button>
+              </Link>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Cart Items List */}
+              <div className="lg:col-span-2 space-y-4">
+                {state.items.map((item) => (
+                  <motion.div
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex gap-4 transition-all hover:shadow-md"
+                  >
                     <Link href={`/product/${item.productId}`} className="flex-shrink-0">
                       <Image
                         src={item.image || "/pl1.jpg"}
                         alt={item.name}
-                        width={80}
-                        height={80}
-                        className="w-20 h-20 object-cover rounded-xl bg-surface-2"
+                        width={100}
+                        height={100}
+                        className="w-24 h-24 object-cover rounded-lg bg-gray-50"
                       />
                     </Link>
-                    <div className="flex-1 min-w-0">
-                      <Link href={`/product/${item.productId}`}>
-                        <h3 className="text-sm font-medium text-text line-clamp-2 hover:text-primary transition-colors">
-                          {item.name}
-                        </h3>
-                      </Link>
-                      {item.selections && item.selections.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mt-1.5">
-                          {item.selections.map((s, i) => (
-                            <span
-                              key={i}
-                              className="text-xs text-text-muted bg-surface-2 px-2 py-0.5 rounded-full"
-                            >
-                              {s.variant}: {s.value}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      <div className="flex items-center justify-between mt-3">
-                        {/* Quantity */}
-                        <div className="flex items-center border border-border rounded-lg overflow-hidden">
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      <div>
+                        <Link href={`/product/${item.productId}`}>
+                          <h3 className="font-bold text-gray-900 line-clamp-1 hover:text-primary transition-colors">
+                            {item.name}
+                          </h3>
+                        </Link>
+                        {item.selections && item.selections.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            {item.selections.map((s, i) => (
+                              <span
+                                key={i}
+                                className="text-[10px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full"
+                              >
+                                {s.variant}: {s.value}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <p className="text-sm font-bold text-gray-900 mt-1">
+                          {formatCurrency(item.price)}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-3 mt-3">
+                        <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
                           <button
                             onClick={() => handleUpdateQty(item.id, item.quantity - 1)}
-                            className="px-2.5 py-1.5 hover:bg-surface-2 transition-colors"
+                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-200 transition-colors disabled:opacity-30"
                             disabled={item.quantity <= 1}
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </button>
-                          <span className="px-3 py-1.5 text-sm font-medium border-x border-border min-w-[2.5rem] text-center">
+                          <span className="w-10 text-center text-sm font-bold border-x border-gray-200">
                             {item.quantity}
                           </span>
                           <button
                             onClick={() => handleUpdateQty(item.id, item.quantity + 1)}
-                            className="px-2.5 py-1.5 hover:bg-surface-2 transition-colors"
+                            className="w-8 h-8 flex items-center justify-center hover:bg-gray-200 transition-colors"
                           >
                             <Plus className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                        {/* Price + Delete */}
-                        <div className="flex items-center gap-3">
-                          <span className="font-bold text-primary text-sm">
-                            {formatCurrency(item.price * item.quantity)}
-                          </span>
-                          <button
-                            onClick={() => handleRemove(item.id)}
-                            className="p-1.5 text-text-faint hover:text-error transition-colors"
-                            aria-label="حذف"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        <button
+                          onClick={() => handleRemove(item.id)}
+                          className="mr-auto text-red-500 hover:text-red-600 transition-colors p-1"
+                          aria-label="حذف"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-left hidden sm:block">
+                      <p className="font-bold text-gray-900 whitespace-nowrap">
+                        {formatCurrency(item.price * item.quantity)}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Order Summary Sidebar */}
+              <div className="lg:col-span-1">
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 sticky top-24 space-y-4">
+                  <h2 className="text-lg font-bold text-gray-900">ملخص الطلب</h2>
+
+                  {/* Pricing Details */}
+                  {summary && (
+                    <div className="space-y-4 pt-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">السعر الفرعي</span>
+                        <span className="font-bold text-gray-900">{formatCurrency(summary.subtotal)}</span>
+                      </div>
+                      
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">التوصيل</span>
+                        <span className="font-bold text-gray-900">
+                          {summary.shipping_zone?.price === 0 ? 'مجاني' : formatCurrency(summary.shipping_zone?.price || 0)}
+                        </span>
+                      </div>
+
+                      {summary.discount > 0 && (
+                        <div className="flex justify-between text-sm text-green-600">
+                          <span>الخصم</span>
+                          <span className="font-bold">-{formatCurrency(summary.discount)}</span>
                         </div>
+                      )}
+
+                      {/* Coupon Section */}
+                      <div className="flex gap-2 pt-2">
+                        <div className="relative flex-1">
+                          <Input
+                            placeholder="رمز الخصم"
+                            value={couponCode}
+                            onChange={(e) => {
+                              setCouponCode(e.target.value);
+                              setCouponError("");
+                            }}
+                            className="text-sm h-10 pr-3"
+                          />
+                          {couponCode && (
+                            <button
+                              onClick={() => {
+                                setCouponCode("");
+                                setCouponError("");
+                              }}
+                              className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={handleApplyCoupon}
+                          disabled={isApplying || !couponCode.trim()}
+                          className="h-10 px-4 font-bold border-gray-200"
+                        >
+                          {isApplying ? "..." : "تطبيق"}
+                        </Button>
+                      </div>
+                      {couponError && <p className="text-red-500 text-xs mt-1">{couponError}</p>}
+
+                      <div className="flex justify-between font-bold text-lg border-t border-gray-100 pt-4 mt-2 text-gray-900">
+                        <span>الإجمالي</span>
+                        <span className="text-gray-900">{formatCurrency(summary.total)}</span>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                  )}
 
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="card p-5 sticky top-24">
-                <h3 className="font-bold text-text mb-4">ملخص الطلب</h3>
-
-                {/* Coupon */}
-                <div className="mb-4">
-                  <label className="text-sm font-medium text-text flex items-center gap-1.5 mb-2">
-                    <Tag className="w-4 h-4" />
-                    كوبون الخصم
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={couponCode}
-                      onChange={(e) => {
-                        setCouponCode(e.target.value);
-                        setCouponError("");
-                      }}
-                      placeholder="كود الكوبون"
-                      className="input-field !py-2 text-sm flex-1"
-                    />
-                    {couponCode && (
-                      <button
-                        onClick={() => {
-                          setCouponCode("");
-                          setCouponError("");
-                        }}
-                        className="p-2 text-text-faint hover:text-error transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                  {couponError && <p className="text-error text-xs mt-1">{couponError}</p>}
-                  <button
-                    onClick={handleApplyCoupon}
-                    disabled={isApplying || !couponCode.trim()}
-                    className="btn-secondary w-full !py-2.5 text-sm mt-2"
-                  >
-                    {isApplying ? "جاري التطبيق..." : "تطبيق"}
-                  </button>
+                  <Link href="/checkout" className="block pt-2">
+                    <Button className="w-full h-11 bg-black hover:bg-gray-800 text-white font-bold rounded-lg transition-all flex items-center justify-center gap-2">
+                      المتابعة للدفع
+                      <ArrowLeft className="w-4 h-4" />
+                    </Button>
+                  </Link>
                 </div>
-
-                {/* Summary rows */}
-                {summary && (
-                  <div className="space-y-2.5 text-sm border-t border-divider pt-4">
-                    <div className="flex justify-between">
-                      <span className="text-text-muted">المجموع الفرعي</span>
-                      <span>{formatCurrency(summary.subtotal)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-text-muted">خصم الكوبون</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-success">-{formatCurrency(summary.discount)}</span>
-                        {summary.coupon?.code && (
-                          <button
-                            onClick={handleRemoveCoupon}
-                            disabled={isApplying}
-                            className="text-error hover:bg-red-50 p-1 rounded transition-colors"
-                            title="حذف الكوبون"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                    {summary.shipping_zone && (
-                      <div className="flex justify-between">
-                        <span className="text-text-muted">الشحن</span>
-                        <span>{formatCurrency(summary.shipping_zone.price)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between font-bold text-base border-t border-divider pt-3 mt-3">
-                      <span>الإجمالي</span>
-                      <span className="text-primary">{formatCurrency(summary.total)}</span>
-                    </div>
-                  </div>
-                )}
-
-                <Link
-                  href="/checkout"
-                  className="btn-primary w-full text-center mt-5 flex items-center justify-center gap-2"
-                >
-                  إتمام الشراء
-                  <ArrowLeft className="w-4 h-4" />
-                </Link>
               </div>
             </div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </main>
     </div>
   );
 }
