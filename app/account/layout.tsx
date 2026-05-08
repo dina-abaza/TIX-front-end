@@ -31,7 +31,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                     : 'text-text hover:bg-surface-2'
                 }`}
               >
-                <link.icon className="w-4 h-4" />
+                <link.icon className={`w-4 h-4 ${link.href === '/account/wishlist' ? 'text-red-600 fill-red-600' : ''}`} />
                 {link.label}
               </Link>
             ))}

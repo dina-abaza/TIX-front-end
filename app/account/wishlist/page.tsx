@@ -31,7 +31,7 @@ export default function WishlistPage() {
   if (items.length === 0) {
     return (
       <div className="card p-10 text-center">
-        <Heart className="w-14 h-14 mx-auto text-text-faint mb-3" />
+        <Heart className="w-14 h-14 mx-auto text-red-600 mb-3" />
         <h3 className="text-lg font-bold mb-2">لا توجد عناصر في المفضلة</h3>
         <p className="text-text-muted text-sm mb-4">أضف منتجات للمفضلة لتجدها هنا</p>
         <Link href="/" className="btn-primary inline-block">تصفح المنتجات</Link>
@@ -40,18 +40,24 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-      {items.map((item) => (
-        <ProductCard
-          key={item.id}
-          id={item.id}
-          name={item.name}
-          price={item.price}
-          originalPrice={item.originalPrice}
-          image={item.image}
-          discount={item.discount}
-        />
-      ))}
+    <div className="space-y-6">
+      <div className="flex items-center gap-2 mb-2">
+        <Heart className="w-6 h-6 text-red-600 fill-red-600" />
+        <h1 className="text-xl font-bold text-black">قائمة المفضلة</h1>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {items.map((item) => (
+          <ProductCard
+            key={item.id}
+            id={item.id}
+            name={item.name}
+            price={item.price}
+            originalPrice={item.originalPrice}
+            image={item.image}
+            discount={item.discount}
+          />
+        ))}
+      </div>
     </div>
   )
 }

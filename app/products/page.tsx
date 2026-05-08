@@ -43,8 +43,8 @@ function ProductsContent() {
   const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState("newest");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(50000);
+  const [minPrice, setMinPrice] = useState<string>("0");
+  const [maxPrice, setMaxPrice] = useState<string>("50000");
   const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -72,7 +72,9 @@ function ProductsContent() {
   // Debounce price changes to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
-      setPriceRange([minPrice, maxPrice]);
+      const min = parseInt(minPrice);
+      const max = parseInt(maxPrice);
+      setPriceRange([isNaN(min) ? 0 : min, isNaN(max) ? 50000 : max]);
     }, 500);
     return () => clearTimeout(timer);
   }, [minPrice, maxPrice]);
@@ -86,10 +88,11 @@ function ProductsContent() {
         if (selectedCategory) url += `&category_id=${selectedCategory}`;
         if (searchParam) url += `&search=${encodeURIComponent(searchParam)}`;
 
-        // Price filtering (if API supports it, otherwise we filter client-side)
-        // For now we assume API might support min_price / max_price
-        if (priceRange[0] > 0) url += `&min_price=${priceRange[0]}`;
-        if (priceRange[1] < 50000) url += `&max_price=${priceRange[1]}`;
+        const minP = priceRange[0];
+        const maxP = priceRange[1];
+
+        if (minP > 0) url += `&min_price=${minP}`;
+        if (maxP < 50000) url += `&max_price=${maxP}`;
 
         if (sortBy === "price_low") url += "&sort=price&direction=asc";
         if (sortBy === "price_high") url += "&sort=price&direction=desc";
@@ -98,6 +101,7 @@ function ProductsContent() {
         const res = await api.get(url);
         if (res.data.status) {
           const data = Array.isArray(res.data.data) ? res.data.data : res.data.data?.data || [];
+          
           let mapped = data.map((p: any): ProductCardProps => ({
             id: String(p.id),
             name: p.name,
@@ -109,8 +113,8 @@ function ProductsContent() {
             reviewsCount: p.reviews?.count || 0,
           }));
 
-          // Client-side filtering as a fallback/safeguard
-          mapped = mapped.filter((p: any) => p.price >= priceRange[0] && p.price <= priceRange[1]);
+          // Client-side filtering as a fallback
+          mapped = mapped.filter((p: any) => p.price >= minP && p.price <= maxP);
 
           if (selectedRatings.length > 0) {
             mapped = mapped.filter((p: any) => selectedRatings.some(r => p.rating >= r));
@@ -118,7 +122,7 @@ function ProductsContent() {
 
           setProducts(mapped);
         }
-      } catch {
+      } catch (err) {
       } finally {
         setLoading(false);
       }
@@ -130,22 +134,26 @@ function ProductsContent() {
     setSelectedRatings(prev =>
       prev.includes(rating) ? prev.filter(r => r !== rating) : [...prev, rating]
     );
+    // Close filter on mobile to show results
+    if (window.innerWidth < 1024) {
+      setFiltersOpen(false);
+    }
   };
 
   const resetFilters = () => {
+    setMinPrice("0");
+    setMaxPrice("50000");
     setPriceRange([0, 50000]);
-    setMinPrice(0);
-    setMaxPrice(50000);
     setSelectedRatings([]);
     setSelectedCategory("");
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f8f9fa]" dir="rtl">
-      <main className="flex-1">
+      <main className="flex-1 pt-16 md:pt-0">
         {/* Page Header */}
         <div className="bg-white border-b border-gray-200">
-          <div className="container mx-auto px-4 py-6">
+          <div className="container mx-auto px-4 py-8">
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
               <Link href="/" className="hover:text-red-600">الرئيسية</Link>
               <span>/</span>
@@ -163,7 +171,7 @@ function ProductsContent() {
         <div className="container mx-auto px-4 py-6 md:py-8">
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* Sidebar Filters */}
-            <aside className={`lg:w-72 flex-shrink-0 ${filtersOpen ? 'fixed inset-0 z-50 bg-white p-4 sm:p-6 overflow-y-auto lg:static lg:bg-transparent lg:p-0' : 'hidden lg:block'}`}>
+            <aside className={`lg:w-72 flex-shrink-0 ${filtersOpen ? 'fixed inset-0 z-[1100] bg-white p-4 pt-24 sm:p-6 sm:pt-28 overflow-y-auto lg:static lg:bg-transparent lg:p-0' : 'hidden lg:block'}`}>
               <div className="lg:sticky lg:top-24 space-y-6">
                 <div className="flex items-center justify-between mb-4 lg:mb-0">
                   <h3 className="font-bold text-lg">تصفية النتائج</h3>
@@ -177,8 +185,11 @@ function ProductsContent() {
                   <h4 className="font-bold text-sm mb-4">الأقسام</h4>
                   <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
                     <button
-                      onClick={() => setSelectedCategory("")}
-                      className={`w-full text-right px-3 py-2 text-sm rounded-lg transition-all ${!selectedCategory ? "bg-red-50 text-red-600 font-bold" : "text-gray-600 hover:bg-gray-50"
+                      onClick={() => {
+                        setSelectedCategory("");
+                        setFiltersOpen(false);
+                      }}
+                      className={`w-full text-right px-3 py-2 text-sm rounded-lg transition-all ${!selectedCategory ? "bg-gray-100 text-black font-bold" : "text-gray-600 hover:bg-gray-50"
                         }`}
                     >
                       الكل
@@ -186,8 +197,11 @@ function ProductsContent() {
                     {categories.map((cat) => (
                       <button
                         key={cat.id}
-                        onClick={() => setSelectedCategory(String(cat.id))}
-                        className={`w-full text-right px-3 py-2 text-sm rounded-lg transition-all ${selectedCategory === String(cat.id) ? "bg-red-50 text-red-600 font-bold" : "text-gray-600 hover:bg-gray-50"
+                        onClick={() => {
+                          setSelectedCategory(String(cat.id));
+                          if (window.innerWidth < 1024) setFiltersOpen(false);
+                        }}
+                        className={`w-full text-right px-3 py-2 text-sm rounded-lg transition-all ${selectedCategory === String(cat.id) ? "bg-gray-100 text-black font-bold" : "text-gray-600 hover:bg-gray-50"
                           }`}
                       >
                         {cat.name}
@@ -206,8 +220,8 @@ function ProductsContent() {
                         <Input
                           type="number"
                           value={minPrice}
-                          onChange={(e) => setMinPrice(parseInt(e.target.value) || 0)}
-                          className="h-9 text-sm"
+                          onChange={(e) => setMinPrice(e.target.value)}
+                          className="h-9 text-sm focus-visible:ring-black focus-visible:border-black"
                         />
                       </div>
                       <div className="flex-1">
@@ -215,8 +229,8 @@ function ProductsContent() {
                         <Input
                           type="number"
                           value={maxPrice}
-                          onChange={(e) => setMaxPrice(parseInt(e.target.value) || 0)}
-                          className="h-9 text-sm"
+                          onChange={(e) => setMaxPrice(e.target.value)}
+                          className="h-9 text-sm focus-visible:ring-black focus-visible:border-black"
                         />
                       </div>
                     </div>
@@ -301,7 +315,7 @@ function ProductsContent() {
                 <div className={`grid ${viewType === 'grid' ? 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'} gap-4`}>
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                     <div key={i} className={`bg-white rounded-xl border border-gray-200 p-4 animate-pulse ${viewType === 'list' ? 'flex gap-4' : ''}`}>
-                      <div className={`${viewType === 'list' ? 'w-48 h-40' : 'w-full aspect-square'} bg-gray-100 rounded-lg`} />
+                      <div className={`${viewType === 'list' ? 'w-48 h-40' : 'w-full aspect-[4/5] lg:aspect-square'} bg-gray-100 rounded-lg`} />
                       <div className="flex-1 mt-4">
                         <div className="h-4 bg-gray-100 rounded w-3/4 mb-2" />
                         <div className="h-4 bg-gray-100 rounded w-1/2" />
@@ -316,18 +330,16 @@ function ProductsContent() {
                     <Link
                       key={product.id}
                       href={`/product/${product.id}`}
-                      className={`group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 relative ${viewType === 'list' ? 'flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6' : ''
+                      className={`group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300 relative flex flex-col h-full ${viewType === 'list' ? 'sm:flex-row sm:items-center gap-4 sm:gap-6' : ''
                         }`}
                     >
                       {/* Image */}
-                      <div className={`relative overflow-hidden bg-gray-50 ${viewType === 'list' ? 'w-48 h-48 sm:w-60 sm:h-60 flex-shrink-0' : 'w-full aspect-square'
-                        } ${viewType === 'list' ? 'w-full h-52 sm:w-60 sm:h-60' : ''}
-                      `}>
+                      <div className={`relative overflow-hidden bg-gray-50 flex-shrink-0 flex items-center justify-center ${viewType === 'list' ? 'w-48 h-48 sm:w-60 sm:h-60' : 'w-full aspect-[4/5] lg:aspect-square'}`}>
                         <Image
                           src={product.image}
                           alt={product.name}
                           fill
-                          className="object-contain p-4 group-hover:scale-110 transition-transform duration-500"
+                          className="object-contain transition-transform duration-500"
                         />
                         {(product.discount ?? 0) > 0 && (
                           <div className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg z-10">
@@ -337,26 +349,26 @@ function ProductsContent() {
                       </div>
 
                       {/* Content */}
-                      <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between">
-                        <div>
-                          <h3 className="font-bold text-sm text-gray-800 line-clamp-2 mb-2 group-hover:text-red-600 transition-colors">
+                      <div className="p-3 sm:p-4 flex-1 flex flex-col group-hover:bg-black/[0.02] transition-colors duration-300">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-sm text-gray-800 line-clamp-2 mb-2 transition-colors h-10 overflow-hidden">
                             {t(product.name)}
                           </h3>
                           <div className="flex items-center gap-1 mb-3">
                             <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-3 h-3 ${i < Math.round(product.rating ?? 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`}
-                                />
-                              ))}
-                            </div>
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-3 h-3 ${i < Math.round(product.rating ?? 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`}
+                              />
+                            ))}
+                          </div>
                             <span className="text-[10px] text-gray-400">({product.reviewsCount})</span>
                           </div>
                         </div>
 
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2">
+                        <div className="mt-auto">
+                          <div className="flex items-center gap-2 mb-1">
                             <span className="text-lg font-bold text-gray-900">{product.price.toLocaleString("ar-EG")} ج.م</span>
                             {(product.originalPrice ?? 0) > product.price && (
                               <span className="text-sm text-gray-400 line-through">
@@ -364,7 +376,7 @@ function ProductsContent() {
                               </span>
                             )}
                           </div>
-                          <Button className="w-full mt-3 bg-gray-900 text-white hover:bg-red-600 rounded-lg h-9 text-xs transition-colors">
+                          <Button className="w-full mt-3 bg-gray-900 text-white hover:bg-black rounded-lg h-9 text-xs transition-colors">
                             عرض التفاصيل
                           </Button>
                         </div>

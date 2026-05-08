@@ -47,14 +47,14 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     <div className="space-y-4">
       <Link
         href="/account/orders"
-        className="text-sm text-primary hover:underline flex items-center gap-1"
+        className="text-sm text-black hover:underline flex items-center gap-1"
       >
         <ArrowRight className="w-4 h-4" />
         العودة للطلبات
       </Link>
       <div className="card p-5">
         <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <Package className="w-5 h-5 text-primary" />
+          <Package className="w-5 h-5 text-black" />
           تفاصيل الطلب #{order.id}
         </h2>
         <div className="grid grid-cols-2 gap-3 text-sm mb-4">
@@ -64,7 +64,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
           </div>
           <div>
             <span className="text-text-muted">الإجمالي:</span>{" "}
-            <span className="font-bold text-primary">{formatCurrency(order.total || 0)}</span>
+            <span className="font-bold text-black">{formatCurrency(order.total || 0)}</span>
           </div>
           <div>
             <span className="text-text-muted">التاريخ:</span>{" "}
@@ -88,7 +88,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                   </p>
                   <p className="text-xs text-text-muted">الكمية: {item.quantity}</p>
                 </div>
-                <span className="text-sm font-bold text-primary">
+                <span className="text-sm font-bold text-black">
                   {formatCurrency(item.price || 0)}
                 </span>
               </div>

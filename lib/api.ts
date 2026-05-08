@@ -29,12 +29,14 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Handle unauthorized - clear token
       if (typeof window !== "undefined") {
+        /*
         document.cookie = "auth_token=; Max-Age=0; path=/";
         document.cookie = "user_data=; Max-Age=0; path=/";
         // Don't redirect if already on login page
         if (!window.location.pathname.includes("/login")) {
           window.location.href = "/login";
         }
+        */
       }
     }
     return Promise.reject(error);

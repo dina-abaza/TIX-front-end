@@ -162,7 +162,7 @@ export default function CheckoutPage() {
   if (authState.isLoading) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-12 flex justify-center">
-        <div className="animate-spin w-8 h-8 border-3 border-primary border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-3 border-black border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -181,7 +181,7 @@ export default function CheckoutPage() {
           <div key={i} className="flex items-center gap-2">
             <div
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-                step.done ? "bg-success/10 text-success" : "bg-surface-2 text-text-muted"
+                step.done ? "bg-black/10 text-black" : "bg-surface-2 text-text-muted"
               }`}
             >
               {step.done ? (
@@ -203,7 +203,7 @@ export default function CheckoutPage() {
             {/* Shipping */}
             <div className="card p-5">
               <h3 className="font-bold flex items-center gap-2 mb-4">
-                <MapPin className="w-5 h-5 text-primary" />
+                <MapPin className="w-5 h-5 text-black" />
                 معلومات الشحن
               </h3>
 
@@ -245,7 +245,7 @@ export default function CheckoutPage() {
                           key={city.id}
                           type="button"
                           className={`w-full text-right px-4 py-2.5 text-sm hover:bg-surface-2 transition-colors flex justify-between ${
-                            selectedCity?.id === city.id ? "bg-primary-light text-primary" : ""
+                            selectedCity?.id === city.id ? "bg-gray-100 text-black font-bold" : ""
                           }`}
                           onClick={() => handleCitySelect(city)}
                         >
@@ -301,7 +301,7 @@ export default function CheckoutPage() {
             {/* Payment */}
             <div className="card p-5">
               <h3 className="font-bold flex items-center gap-2 mb-4">
-                <CreditCard className="w-5 h-5 text-primary" />
+                <CreditCard className="w-5 h-5 text-black" />
                 طريقة الدفع
               </h3>
               <div className="space-y-2.5">
@@ -310,7 +310,7 @@ export default function CheckoutPage() {
                     key={method.id}
                     className={`flex items-center gap-3 p-3.5 border rounded-xl cursor-pointer transition-all ${
                       paymentMethod === method.id
-                        ? "border-primary bg-primary-light"
+                        ? "border-black bg-gray-50"
                         : "border-border hover:border-text-faint"
                     }`}
                   >
@@ -320,7 +320,7 @@ export default function CheckoutPage() {
                       value={method.id}
                       checked={paymentMethod === method.id}
                       onChange={() => setPaymentMethod(method.id)}
-                      className="w-4 h-4 text-primary accent-primary"
+                      className="w-4 h-4 text-black accent-black"
                     />
                     <div>
                       <p className="text-sm font-medium">{method.name}</p>
@@ -353,7 +353,7 @@ export default function CheckoutPage() {
         <div className="lg:col-span-1">
           <div className="card p-5 sticky top-24">
             <h3 className="font-bold flex items-center gap-2 mb-4">
-              <ShoppingBag className="w-5 h-5 text-primary" />
+              <ShoppingBag className="w-5 h-5 text-black" />
               ملخص الطلب
             </h3>
 
@@ -383,13 +383,13 @@ export default function CheckoutPage() {
                 )}
                 <div className="flex justify-between font-bold text-base pt-3 border-t border-divider">
                   <span>الإجمالي</span>
-                  <span className="text-primary">{formatCurrency(summary.total)}</span>
+                  <span className="text-black">{formatCurrency(summary.total)}</span>
                 </div>
               </div>
             )}
 
             <div className="flex items-center gap-2 text-text-muted text-xs mt-4 p-3 bg-surface-2 rounded-xl">
-              <Truck className="w-4 h-4 text-primary flex-shrink-0" />
+              <Truck className="w-4 h-4 text-black flex-shrink-0" />
               <span>التوصيل خلال 2-5 أيام عمل</span>
             </div>
           </div>

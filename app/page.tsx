@@ -120,7 +120,7 @@ export default async function HomePage() {
           <h2 className="text-2xl font-bold">أحدث المنتجات</h2>
           <Link
             href="/products"
-            className="text-primary font-bold hover:underline"
+            className="text-red-600 font-bold hover:underline"
           >
             عرض الكل ←
           </Link>
@@ -144,7 +144,7 @@ export default async function HomePage() {
               <h2 className="text-2xl font-bold">{cat.name}</h2>
               <Link
                 href={`/products?category=${cat.id}`}
-                className="text-primary font-bold hover:underline"
+                className="text-red-600 font-bold hover:underline"
               >
                 عرض الكل ←
               </Link>

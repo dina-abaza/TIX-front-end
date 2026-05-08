@@ -103,10 +103,12 @@ export default function ProductDetailClient({ productId }: { productId: string }
   }, [productId]);
 
   const handleAddToCart = async () => {
+    /*
     if (!authState.isAuthenticated) {
       toast.info("سجّل الدخول أولاً");
       return;
     }
+    */
     try {
       setAddingToCart(true);
       await addToCart(product!.id, quantity, selectedItem?.id || null);
@@ -119,10 +121,12 @@ export default function ProductDetailClient({ productId }: { productId: string }
   };
 
   const handleToggleWishlist = async () => {
+    /*
     if (!authState.isAuthenticated) {
       toast.info("سجّل الدخول أولاً");
       return;
     }
+    */
     try {
       await toggleWishlist(product!.id);
       fetchProduct();
@@ -399,7 +403,7 @@ export default function ProductDetailClient({ productId }: { productId: string }
                 onClick={handleToggleWishlist}
                 className="w-full flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <Heart className={`w-5 h-5 ${wishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
+                <Heart className={`w-5 h-5 ${wishlisted ? 'fill-red-600 text-red-600' : 'text-red-600'}`} />
                 <span className="text-sm font-semibold">{wishlisted ? 'مضاف للمفضلة' : 'أضف للمفضلة'}</span>
               </button>
 
